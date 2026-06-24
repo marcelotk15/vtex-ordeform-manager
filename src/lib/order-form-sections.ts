@@ -1,0 +1,17 @@
+export const EXPECTED_ORDER_FORM_SECTIONS = [
+  'items',
+  'totalizers',
+  'clientProfileData',
+  'shippingData',
+  'paymentData',
+  'sellers',
+  'messages',
+  'marketingData',
+  'clientPreferencesData',
+  'storePreferencesData',
+  'giftRegistryData',
+  'ratesAndBenefitsData',
+  'openTextField',
+  'commercialConditionData',
+  'customData',
+] as const
