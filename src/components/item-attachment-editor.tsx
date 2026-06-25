@@ -1,11 +1,12 @@
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import type { AttachmentOffering } from '~/types/order-form'
 
+import { SectionPanel } from '~/components/section-panel'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Checkbox } from '~/components/ui/checkbox'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -45,7 +46,6 @@ type AttachmentFormProps = {
 function AttachmentForm({ itemIndex, attachmentName, offering, existingContent, saving, onSave }: AttachmentFormProps) {
   const [formValues, setFormValues] = useState(() => buildContentFromSchema(offering, existingContent))
   const [noSplitItem, setNoSplitItem] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleFieldChange = (fieldName: string, value: string) => {
     setFormValues((current) => ({ ...current, [fieldName]: value }))
@@ -61,20 +61,24 @@ function AttachmentForm({ itemIndex, attachmentName, offering, existingContent, 
         content,
         noSplitItem,
       })
-      setSuccessMessage('Attachment saved successfully.')
-    } catch {
-      // error handled in store
+      toast.success('Attachment saved successfully', {
+        description: `"${attachmentName}" updated on item #${itemIndex}.`,
+      })
+    } catch (error) {
+      toast.error('Failed to save attachment', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred.',
+      })
     }
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {Object.entries(offering.schema).map(([fieldName, fieldSchema]) => {
         const value = formValues[fieldName] ?? ''
 
         if (fieldSchema.domain?.length) {
           return (
-            <div key={fieldName} className="space-y-2">
+            <div key={fieldName} className="space-y-1.5">
               <Label htmlFor={`field-${fieldName}`}>{fieldName}</Label>
               <Select value={value} onValueChange={(nextValue) => handleFieldChange(fieldName, nextValue ?? '')}>
                 <SelectTrigger id={`field-${fieldName}`}>
@@ -93,7 +97,7 @@ function AttachmentForm({ itemIndex, attachmentName, offering, existingContent, 
         }
 
         return (
-          <div key={fieldName} className="space-y-2">
+          <div key={fieldName} className="space-y-1.5">
             <Label htmlFor={`field-${fieldName}`}>{fieldName}</Label>
             <Input
               id={`field-${fieldName}`}
@@ -105,12 +109,12 @@ function AttachmentForm({ itemIndex, attachmentName, offering, existingContent, 
         )
       })}
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="payload-preview">Payload preview</Label>
         <Textarea
           id="payload-preview"
           readOnly
-          className="min-h-32 font-mono text-xs"
+          className="min-h-28 font-mono text-xs"
           value={JSON.stringify(buildContentFromSchema(offering, formValues), null, 2)}
         />
       </div>
@@ -128,14 +132,6 @@ function AttachmentForm({ itemIndex, attachmentName, offering, existingContent, 
         {saving && <Loader2 className="size-4 animate-spin" />}
         Save attachment
       </Button>
-
-      {successMessage && (
-        <Alert>
-          <CheckCircle2 className="size-4" />
-          <AlertTitle>Success</AlertTitle>
-          <AlertDescription>{successMessage}</AlertDescription>
-        </Alert>
-      )}
     </div>
   )
 }
@@ -163,8 +159,8 @@ export function ItemAttachmentEditor() {
 
   if (selectedItemIndex == null || !item) {
     return (
-      <Alert>
-        <AlertCircle className="size-4" />
+      <Alert className="border-l-accent">
+        <AlertCircle className="size-4 text-muted-foreground" />
         <AlertTitle>No item selected</AlertTitle>
         <AlertDescription>Select an item in the table to edit its attachments.</AlertDescription>
       </Alert>
@@ -174,87 +170,92 @@ export function ItemAttachmentEditor() {
   const offerings = item.attachmentOfferings ?? []
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Attachment editor</CardTitle>
-        <CardDescription>
-          Item #{selectedItemIndex} — {item.name}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <dt className="text-sm text-muted-foreground">ID</dt>
-            <dd className="font-mono text-sm">{item.id}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">SKU</dt>
-            <dd className="text-sm">{item.skuName ?? '—'}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Quantity</dt>
-            <dd className="text-sm">{item.quantity}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Price</dt>
-            <dd className="text-sm">{formatVtexPrice(item.sellingPrice ?? item.price)}</dd>
-          </div>
-        </dl>
+    <SectionPanel title="Attachment editor" description={`Item #${selectedItemIndex} — ${item.name}`}>
+      <div className="space-y-4">
+        <div className="space-y-4 rounded-lg border border-border bg-muted/10 p-4">
+          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <dt className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground">ID</dt>
+              <dd className="font-mono text-xs">{item.id}</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground">SKU</dt>
+              <dd className="text-xs">{item.skuName ?? '—'}</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground">Quantity</dt>
+              <dd className="text-xs">{item.quantity}</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground">Price</dt>
+              <dd className="text-xs">{formatVtexPrice(item.sellingPrice ?? item.price)}</dd>
+            </div>
+          </dl>
 
-        <Separator />
+          {offerings.length === 0 ? (
+            <Alert className="border-l-accent">
+              <AlertCircle className="size-4 text-muted-foreground" />
+              <AlertTitle>No attachmentOfferings</AlertTitle>
+              <AlertDescription>This item has no attachments available for editing.</AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <Separator />
 
-        {offerings.length === 0 ? (
-          <Alert>
-            <AlertCircle className="size-4" />
-            <AlertTitle>No attachmentOfferings</AlertTitle>
-            <AlertDescription>This item has no attachments available for editing.</AlertDescription>
-          </Alert>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="attachment-select">Attachment</Label>
-              <Select
-                value={selectedAttachmentName ?? undefined}
-                onValueChange={(value) => setSelectedAttachmentName(value)}
-              >
-                <SelectTrigger id="attachment-select" className="w-full sm:max-w-md">
-                  <SelectValue placeholder="Select an attachment" />
-                </SelectTrigger>
-                <SelectContent>
-                  {offerings.map((offering) => (
-                    <SelectItem key={offering.name} value={offering.name}>
-                      {offering.name}
-                      {offering.required ? ' (required)' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1.5">
+                <Label htmlFor="attachment-select">Attachment</Label>
+                <Select
+                  value={selectedAttachmentName ?? undefined}
+                  onValueChange={(value) => setSelectedAttachmentName(value)}
+                >
+                  <SelectTrigger id="attachment-select" className="w-full sm:max-w-md">
+                    <SelectValue placeholder="Select an attachment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {offerings.map((offering) => (
+                      <SelectItem key={offering.name} value={offering.name}>
+                        {offering.name}
+                        {offering.required ? ' (required)' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedAttachmentName && !selectedOffering && (
+                <Alert variant="destructive">
+                  <AlertCircle className="size-4" />
+                  <AlertTitle>Invalid attachment</AlertTitle>
+                  <AlertDescription>
+                    The selected attachment does not exist in this item&apos;s attachmentOfferings.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
+        </div>
+
+        {selectedOffering && selectedAttachmentName != null && (
+          <div className="space-y-4 rounded-lg border border-border bg-muted/10 p-4">
+            <div>
+              <h3 className="font-heading text-sm font-medium tracking-tight">{selectedAttachmentName}</h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">Edit attachment fields and save changes.</p>
             </div>
 
-            {selectedAttachmentName && !selectedOffering && (
-              <Alert variant="destructive">
-                <AlertCircle className="size-4" />
-                <AlertTitle>Invalid attachment</AlertTitle>
-                <AlertDescription>
-                  The selected attachment does not exist in this item&apos;s attachmentOfferings.
-                </AlertDescription>
-              </Alert>
-            )}
+            <Separator />
 
-            {selectedOffering && selectedAttachmentName != null && (
-              <AttachmentForm
-                key={`${selectedItemIndex}-${selectedAttachmentName}-${lastUpdatedAt ?? 'initial'}`}
-                itemIndex={selectedItemIndex}
-                attachmentName={selectedAttachmentName}
-                offering={selectedOffering}
-                existingContent={existingContent}
-                saving={saving}
-                onSave={saveItemAttachment}
-              />
-            )}
+            <AttachmentForm
+              key={`${selectedItemIndex}-${selectedAttachmentName}-${lastUpdatedAt ?? 'initial'}`}
+              itemIndex={selectedItemIndex}
+              attachmentName={selectedAttachmentName}
+              offering={selectedOffering}
+              existingContent={existingContent}
+              saving={saving}
+              onSave={saveItemAttachment}
+            />
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </SectionPanel>
   )
 }

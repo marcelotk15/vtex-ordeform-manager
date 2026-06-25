@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 
-import { EXPECTED_ORDER_FORM_SECTIONS } from '~/lib/order-form-sections'
 import type { OrderForm } from '~/types/order-form'
+
+import { EXPECTED_ORDER_FORM_SECTIONS } from '~/lib/order-form-sections'
 
 const VTEX_HEADERS = {
   'Content-Type': 'application/json; charset=UTF-8',
@@ -69,11 +70,9 @@ export const getOrderFormServer = createServerFn({
     throw new Error('accountName and orderFormId are required.')
   }
 
-  return vtexFetch(
-    accountName.trim(),
-    `/api/checkout/pub/orderForm/${orderFormId.trim()}?refreshOutdatedData=true`,
-    { expectedOrderFormSections: EXPECTED_ORDER_FORM_SECTIONS },
-  )
+  return vtexFetch(accountName.trim(), `/api/checkout/pub/orderForm/${orderFormId.trim()}?refreshOutdatedData=true`, {
+    expectedOrderFormSections: EXPECTED_ORDER_FORM_SECTIONS,
+  })
 })
 
 export const updateItemAttachmentServer = createServerFn({

@@ -16,6 +16,8 @@ export type OrderFormItem = {
   uniqueId?: string
   id: string
   productId?: string
+  productRefId?: string
+  refId?: string | null
   name: string
   skuName?: string
   quantity: number

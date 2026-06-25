@@ -17,5 +17,14 @@
   "rules": {
     "react/react-in-jsx-scope": "off"
   },
-  "ignorePatterns": ["dist/**", "node_modules/**", "src/components/ui/**", "src/routeTree.gen.ts", "server/**", "server.js", "vite.config.ts"]
+  "ignorePatterns": [
+    "dist/**",
+    ".output/**",
+    "node_modules/**",
+    "src/components/ui/**",
+    "src/routeTree.gen.ts",
+    "server/**",
+    "server.js",
+    "vite.config.ts"
+  ]
 }

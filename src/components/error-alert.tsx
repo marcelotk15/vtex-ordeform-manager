@@ -1,6 +1,6 @@
 import { AlertCircle, X } from 'lucide-react'
 
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { Alert, AlertAction, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
 import { useOrderFormStore } from '~/stores/order-form-store'
 
@@ -14,21 +14,21 @@ export function ErrorAlert({ message, onDismiss }: ErrorAlertProps) {
     <Alert variant="destructive">
       <AlertCircle className="size-4" />
       <AlertTitle>Error</AlertTitle>
-      <AlertDescription className="flex items-start justify-between gap-4">
-        <span>{message}</span>
-        {onDismiss && (
+      <AlertDescription>{message}</AlertDescription>
+      {onDismiss && (
+        <AlertAction>
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="shrink-0 text-destructive hover:text-destructive"
+            className="text-destructive hover:text-destructive"
             onClick={onDismiss}
             aria-label="Dismiss error"
           >
             <X className="size-4" />
           </Button>
-        )}
-      </AlertDescription>
+        </AlertAction>
+      )}
     </Alert>
   )
 }
