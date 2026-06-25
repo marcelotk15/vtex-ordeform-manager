@@ -8,7 +8,7 @@ export function PageFooter() {
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-accent/40 via-border to-primary/40" />
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-5 text-center sm:flex-row sm:text-left">
         <p className="text-xs text-muted-foreground">
-          Created with{' '}
+          Made with{' '}
           <span className="text-accent" aria-hidden="true">
             ❤️
           </span>{' '}
