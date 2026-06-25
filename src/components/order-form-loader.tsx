@@ -45,7 +45,7 @@ export function OrderFormLoader() {
         <div className="flex justify-end">
           <Button type="button" onClick={() => void loadOrderForm()} disabled={!canLoad || loading}>
             {loading && <Loader2 className="size-4 animate-spin" />}
-            Load orderForm
+            Load OrderForm
           </Button>
         </div>
       </div>
